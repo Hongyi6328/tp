@@ -2,8 +2,10 @@ package seedu.address.logic;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.logging.Logger;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
@@ -14,7 +16,11 @@ import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyAddressBook;
-import seedu.address.model.person.Person;
+import seedu.address.model.order.Order;
+import seedu.address.model.person.Buyer;
+import seedu.address.model.person.Deliverer;
+import seedu.address.model.person.Supplier;
+import seedu.address.model.pet.Pet;
 import seedu.address.storage.Storage;
 
 /**
@@ -55,13 +61,47 @@ public class LogicManager implements Logic {
     }
 
     @Override
+    public CommandResult executeGivenCommand(Command command) throws CommandException {
+        CommandResult commandResult = command.execute(model);
+        try {
+            storage.saveAddressBook(model.getAddressBook());
+        } catch (IOException ioe) {
+            throw new CommandException(FILE_OPS_ERROR_MESSAGE + ioe, ioe);
+        }
+        return commandResult;
+    }
+
+    @Override
     public ReadOnlyAddressBook getAddressBook() {
         return model.getAddressBook();
     }
 
     @Override
-    public ObservableList<Person> getFilteredPersonList() {
-        return model.getFilteredPersonList();
+    public ObservableList<Buyer> getFilteredBuyerList() {
+        return model.getFilteredBuyerList();
+    }
+    @Override
+    public ObservableList<Supplier> getFilteredSupplierList() {
+        return model.getFilteredSupplierList();
+    }
+    @Override
+    public ObservableList<Deliverer> getFilteredDelivererList() {
+        return model.getFilteredDelivererList();
+    }
+
+    @Override
+    public ObservableList<Pet> getFilteredPetList() {
+        return model.getFilteredPetList();
+    }
+
+    @Override
+    public ObservableList<Order> getFilteredOrderList() {
+        return model.getFilteredOrderList();
+    }
+
+    @Override
+    public ObservableList<Object> getFilteredMainList() {
+        return model.getFilteredMainList();
     }
 
     @Override
@@ -77,5 +117,23 @@ public class LogicManager implements Logic {
     @Override
     public void setGuiSettings(GuiSettings guiSettings) {
         model.setGuiSettings(guiSettings);
+    }
+
+    @Override
+    public ObservableList<Order> getOrderAsObservableListFromBuyer(Buyer buyer) {
+        List<Order> ordersFromBuyer = model.getOrdersFromBuyer(buyer);
+        return FXCollections.observableList(ordersFromBuyer);
+    }
+
+    @Override
+    public ObservableList<Order> getOrderAsObservableListFromDeliverer(Deliverer deliverer) {
+        List<Order> ordersFromDeliverer = model.getOrdersFromDeliverer(deliverer);
+        return FXCollections.observableList(ordersFromDeliverer);
+    }
+
+    @Override
+    public ObservableList<Pet> getPetAsObservableListFromSupplier(Supplier supplier) {
+        List<Pet> petsFromSupplier = model.getPetsFromSupplier(supplier);
+        return FXCollections.observableList(petsFromSupplier);
     }
 }
